@@ -1,19 +1,19 @@
 {
     "testimonials": [
         {
-            "text": "Kris is an exceptional Azure architect. His deep understanding of cloud infrastructure and ability to implement complex solutions is outstanding.",
-            "author": "John Smith",
-            "title": "CTO, Tech Company"
+            "text": "Kris is by far the most professional and experienced Azure Architect that I’ve ever had the pleasure to work with. As a result of our work together, we were able to build our cloud-first strategy and bring further compliance and consistency across our network and server infrastructure. Kris has a cool head in a heated scenario and is extremely approachable and easy to collaborate with.",
+            "author": "Ross Tulloch",
+            "title": "IT Operations Manager, Greenwoods Legal LLP"
         },
         {
-            "text": "Working with Kris transformed our cloud infrastructure. His expertise in Azure and automation has been invaluable.",
-            "author": "Jane Doe",
-            "title": "Cloud Engineer"
+            "text": "CIPD worked with Kris on several key infrastructure code projects in a very short time frame. This work covered off most areas in Azure and is the foundation work we needed to enable our Azure migration through code. Deploying a new AOVPN solution, meant that the user experience is clean when in or out of the office. I look forward to our continued work partnership with Kris",
+            "author": "Paul Wood",
+            "title": "Cloud Operations Manager, CIPD"
         },
         {
-            "text": "His YouTube content has helped our team stay up-to-date with the latest Azure best practices. Highly recommended!",
-            "author": "Mike Johnson",
-            "title": "DevOps Lead"
+            "text": "Kris is brilliant - both as a subject matter expert in all things Microsoft, Azure and cloud technologies and also a team member and person.",
+            "author": "Aaron Collins",
+            "title": "Infrastructure and Development Manager, Chesterfield Royal Hospital NHS Foundation Trust"
         }
     ]
 } 
