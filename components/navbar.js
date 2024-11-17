@@ -3,7 +3,7 @@ function loadNavbar() {
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
             <div class="container">
                 <a class="navbar-brand" href="./index.html">Kris Turk</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -17,4 +17,21 @@ function loadNavbar() {
         </nav>
     `;
     document.getElementById('navbar-placeholder').innerHTML = navbar;
+
+    // Initialize Bootstrap's collapse functionality
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+    
+    if (navbarToggler && navbarCollapse) {
+        navbarToggler.addEventListener('click', () => {
+            navbarCollapse.classList.toggle('show');
+        });
+
+        // Close menu when clicking a link (mobile)
+        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navbarCollapse.classList.remove('show');
+            });
+        });
+    }
 } 
