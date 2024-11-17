@@ -7,6 +7,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -33,6 +34,19 @@
     <main>
         <div class="container py-5">
             <h2 class="text-center mb-4">Latest YouTube Videos</h2>
+            
+            <!-- Search Bar -->
+            <div class="row mb-4">
+                <div class="col-md-6 mx-auto">
+                    <div class="input-group">
+                        <input type="text" id="video-search" class="form-control" placeholder="Search videos...">
+                        <button class="btn btn-primary" type="button" id="search-clear">
+                            <i class="bi bi-x"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="row" id="youtube-videos">
                 <!-- Videos will be dynamically loaded here -->
                 <div class="col-12 text-center">
@@ -57,6 +71,7 @@
     <script>
         let API_KEY;
         let CHANNEL_ID;
+        let allVideos = []; // Store all videos for filtering
 
         async function initConfig() {
             // Check if we're running locally (file://) or deployed (http(s)://)
@@ -116,20 +131,11 @@
                 const data = await response.json();
                 console.log('YouTube data received:', data);
 
-                // Process videos
-                const videoContainer = document.getElementById('youtube-videos');
-                if (!videoContainer) {
-                    throw new Error('YouTube videos container not found in the DOM');
-                }
+                // Store all videos
+                allVideos = data.items.filter(item => item.id.videoId);
                 
-                videoContainer.innerHTML = ''; // Clear existing content
-
-                data.items.forEach(item => {
-                    if (item.id.videoId) {
-                        const videoCard = createVideoCard(item);
-                        videoContainer.appendChild(videoCard);
-                    }
-                });
+                // Display videos
+                displayVideos(allVideos);
 
             } catch (error) {
                 console.error('Error loading YouTube content:', error);
@@ -141,6 +147,53 @@
                 }
             }
         }
+
+        function displayVideos(videos) {
+            const videoContainer = document.getElementById('youtube-videos');
+            if (!videoContainer) {
+                throw new Error('YouTube videos container not found in the DOM');
+            }
+            
+            videoContainer.innerHTML = ''; // Clear existing content
+
+            if (videos.length === 0) {
+                videoContainer.innerHTML = '<div class="col-12 text-center"><p>No videos found matching your search.</p></div>';
+                return;
+            }
+
+            videos.forEach(item => {
+                const videoCard = createVideoCard(item);
+                videoContainer.appendChild(videoCard);
+            });
+        }
+
+        // Search functionality
+        function filterVideos(searchTerm) {
+            const filtered = allVideos.filter(video => {
+                const title = video.snippet.title.toLowerCase();
+                const description = video.snippet.description.toLowerCase();
+                const search = searchTerm.toLowerCase();
+                return title.includes(search) || description.includes(search);
+            });
+            displayVideos(filtered);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadYouTubeData();
+
+            const searchInput = document.getElementById('video-search');
+            const clearButton = document.getElementById('search-clear');
+
+            searchInput.addEventListener('input', (e) => {
+                filterVideos(e.target.value);
+            });
+
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                displayVideos(allVideos);
+            });
+        });
 
         // Helper function to create video cards
         function createVideoCard(item) {
@@ -160,9 +213,6 @@
             `;
             return div;
         }
-
-        // Call the function when page loads
-        loadYouTubeData();
     </script>
 </body>
 </html> 
