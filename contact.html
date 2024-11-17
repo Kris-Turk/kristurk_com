@@ -65,14 +65,46 @@
     <script src="./components/navbar.js"></script>
     <script src="./components/footer.js"></script>
     <script>
-        // Load shared components
         loadNavbar();
         loadFooter();
 
-        // Your existing contact form JavaScript
-        document.getElementById('contact-form').addEventListener('submit', function(e) {
+        // Contact form submission handler
+        document.getElementById('contact-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Your form submission logic
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+
+            try {
+                const webhookUrl = 'https://prod-02.australiaeast.logic.azure.com:443/workflows/5c96bffd13f44fcd9105394f8a75a11d/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=KOeuyOeyGxUbxbMhDLt3jhstL_eAj3MvD-uaPQZQ-y4';
+                
+                console.log('Sending data:', formData); // Debug log
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('Response:', response); // Debug log
+
+                if (response.ok) {
+                    alert('Message sent successfully!');
+                    this.reset(); // Reset form after successful submission
+                } else {
+                    throw new Error(`Failed to send message: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send message. Please try again later.');
+            }
         });
     </script>
 </body>
