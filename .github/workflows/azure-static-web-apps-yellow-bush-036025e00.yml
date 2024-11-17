@@ -39,9 +39,10 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_BUSH_036025E00 }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "/" # App source code path
-          api_location: "api" # Api source code path - optional
-          output_location: "" # Remove the /build path since we don't have a build process
+          app_location: "/" # Location of your source code
+          api_location: "api" # Location of your Azure Functions code
+          output_location: "." # Location of your static content - "." means same as app_location
+          skip_app_build: true # Skip the build process since we have static files
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
 
