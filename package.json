@@ -1,0 +1,8 @@
+{
+  "name": "kristurk-website",
+  "version": "1.0.0",
+  "description": "Kris Turk's personal website",
+  "scripts": {
+    "build": "echo 'No build step required'"
+  }
+} 
