@@ -73,8 +73,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    const API_KEY = 'AIzaSyAWO_CbxvsMD-NaQ4uY2KV85asqDdG2tLU';
-    const CHANNEL_ID = 'UCdHtgd4k954mg3kWXw-d4jA';
+        const API_KEY = process.env.YOUTUBE_API_KEY;
+        const CHANNEL_ID = process.env.CHANNEL_ID; //
      // Get this from your YouTube channel URL
     let nextPageToken = '';
     let currentQuery = '';
