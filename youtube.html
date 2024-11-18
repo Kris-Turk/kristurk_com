@@ -50,8 +50,10 @@
     <script src="js/config.js"></script>
     <script>
         // Load the shared components
-        loadNavbar();
-        loadFooter();
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNavbar();
+            loadFooter();
+        });
 
         // Keep existing YouTube functionality
         let API_KEY;

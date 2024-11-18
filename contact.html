@@ -46,8 +46,10 @@
     <script src="./components/navbar.js"></script>
     <script src="./components/footer.js"></script>
     <script>
-        loadNavbar();
-        loadFooter();
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNavbar();
+            loadFooter();
+        });
 
         document.getElementById('contact-form').addEventListener('submit', async function(e) {
             e.preventDefault();
