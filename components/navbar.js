@@ -1,4 +1,6 @@
 function loadNavbar() {
+    console.log('Navbar component is loading...');
+    
     const navbar = `
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
             <div class="container">
@@ -16,22 +18,12 @@ function loadNavbar() {
             </div>
         </nav>
     `;
-    document.getElementById('navbar-placeholder').innerHTML = navbar;
 
-    // Initialize Bootstrap's collapse functionality
-    const navbarToggler = document.querySelector('.navbar-toggler');
-    const navbarCollapse = document.querySelector('.navbar-collapse');
-    
-    if (navbarToggler && navbarCollapse) {
-        navbarToggler.addEventListener('click', () => {
-            navbarCollapse.classList.toggle('show');
-        });
-
-        // Close menu when clicking a link (mobile)
-        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                navbarCollapse.classList.remove('show');
-            });
-        });
+    const navbarPlaceholder = document.getElementById('navbar-placeholder');
+    if (navbarPlaceholder) {
+        console.log('Found navbar placeholder, inserting navbar...');
+        navbarPlaceholder.innerHTML = navbar;
+    } else {
+        console.error('Could not find navbar-placeholder element!');
     }
 } 
