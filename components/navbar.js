@@ -23,6 +23,23 @@ function loadNavbar() {
     if (navbarPlaceholder) {
         console.log('Found navbar placeholder, inserting navbar...');
         navbarPlaceholder.innerHTML = navbar;
+
+        // Initialize Bootstrap's collapse functionality
+        const navbarToggler = document.querySelector('.navbar-toggler');
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        
+        if (navbarToggler && navbarCollapse) {
+            navbarToggler.addEventListener('click', () => {
+                navbarCollapse.classList.toggle('show');
+            });
+
+            // Close menu when clicking a link (mobile)
+            document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    navbarCollapse.classList.remove('show');
+                });
+            });
+        }
     } else {
         console.error('Could not find navbar-placeholder element!');
     }
