@@ -1,0 +1,15 @@
+{
+  "globalHeaders": {
+    "Referrer-Policy": "no-referrer-when-downgrade",
+    "Permissions-Policy": "accelerometer=*, autoplay=*, clipboard-write=*, encrypted-media=*, gyroscope=*, picture-in-picture=*, web-share=*"
+  },
+  "routes": [
+    {
+      "route": "/youtube.html",
+      "headers": {
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "frame-src https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com;"
+      }
+    }
+  ]
+}

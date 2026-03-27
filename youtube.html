@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <title>Kris Turk - YouTube Content</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Replace the hardcoded navbar with the placeholder -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- YouTube Content Section -->
+    <main class="mt-5 pt-5">
+        <div class="container py-5">
+            <h2 class="text-center mb-4">Latest YouTube Videos</h2>
+            
+            <!-- Search Bar -->
+            <div class="row mb-4">
+                <div class="col-md-6 mx-auto">
+                    <div class="input-group">
+                        <input type="text" id="video-search" class="form-control" placeholder="Search videos...">
+                        <button class="btn btn-primary" type="button" id="search-clear">
+                            <i class="bi bi-x"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="youtube-videos">
+                <!-- Videos will be dynamically loaded here -->
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Replace the hardcoded footer with the placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./components/navbar.js"></script>
+    <script src="./components/footer.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+        loadNavbar();
+        loadFooter();
+
+        let API_KEY;
+        let CHANNEL_ID;
+        let allVideos = [];
+        let nextPageToken = null;
+        let isLoading = false;
+
+        async function initConfig() {
+            // Check if we're running locally (file://) or deployed (http(s)://)
+            const isLocalFile = window.location.protocol === 'file:';
+            
+            if (isLocalFile) {
+                // Running locally, use local config directly
+                if (typeof config !== 'undefined') {
+                    API_KEY = config.youtubeApiKey;
+                    CHANNEL_ID = config.channelId;
+                    console.log('Using local config');
+                } else {
+                    console.error('No configuration found! Please check config.js is present');
+                    throw new Error('YouTube API configuration missing');
+                }
+            } else {
+                // Running on a server, try to fetch config
+                try {
+                    const response = await fetch('/api/config');
+                    const serverConfig = await response.json();
+                    API_KEY = serverConfig.youtubeApiKey;
+                    CHANNEL_ID = serverConfig.youtubeChannelId;
+                    console.log('Using server config');
+                } catch (error) {
+                    // Fall back to local config if server fetch fails
+                    if (typeof config !== 'undefined') {
+                        API_KEY = config.youtubeApiKey;
+                        CHANNEL_ID = config.channelId;
+                        console.log('Falling back to local config');
+                    } else {
+                        console.error('No configuration found!');
+                        throw new Error('YouTube API configuration missing');
+                    }
+                }
+            }
+        }
+
+        async function loadYouTubeData(pageToken = '') {
+            try {
+                await initConfig();
+                
+                if (!API_KEY || !CHANNEL_ID) {
+                    throw new Error('YouTube API key or Channel ID is missing');
+                }
+
+                console.log('Fetching YouTube data...');
+                isLoading = true;
+                
+                // Add pageToken if it exists
+                const tokenParam = pageToken ? `&pageToken=${pageToken}` : '';
+                const response = await fetch(
+                    `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=9&type=video${tokenParam}`
+                );
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    console.error('YouTube API Error:', error);
+                    throw new Error(`YouTube API returned error: ${error.error?.message || 'Unknown error'}`);
+                }
+
+                const data = await response.json();
+                console.log('YouTube data received:', data);
+                console.log(`Total items in response: ${data.items?.length || 0}`);
+
+                // Store next page token
+                nextPageToken = data.nextPageToken;
+
+                // Add new videos to existing ones
+                const newVideos = data.items.filter(item => {
+                    const hasVideoId = item.id && item.id.videoId;
+                    if (!hasVideoId) {
+                        console.warn('Skipping item without videoId:', item);
+                    } else {
+                        console.log('Valid video item:', {
+                            videoId: item.id.videoId,
+                            title: item.snippet?.title,
+                            kind: item.id?.kind
+                        });
+                    }
+                    return hasVideoId;
+                });
+                if (pageToken) {
+                    allVideos = [...allVideos, ...newVideos];
+                } else {
+                    allVideos = newVideos;
+                }
+                
+                console.log(`Loaded ${newVideos.length} videos. Total: ${allVideos.length}`);
+                console.log('All video IDs:', allVideos.map(v => v.id?.videoId));
+                
+                // Display all videos
+                displayVideos(allVideos, !pageToken);
+                isLoading = false;
+
+            } catch (error) {
+                console.error('Error loading YouTube content:', error);
+                const container = document.getElementById('youtube-videos');
+                if (container) {
+                    container.innerHTML = `<div class="alert alert-danger">Error loading YouTube content: ${error.message}</div>`;
+                } else {
+                    console.error('Could not find container to display error message');
+                }
+                isLoading = false;
+            }
+        }
+
+        function displayVideos(videos, clearContainer = true) {
+            const videoContainer = document.getElementById('youtube-videos');
+            if (!videoContainer) {
+                throw new Error('YouTube videos container not found in the DOM');
+            }
+            
+            if (clearContainer) {
+                videoContainer.innerHTML = ''; // Clear existing content
+            }
+
+            if (videos.length === 0) {
+                videoContainer.innerHTML = '<div class="col-12 text-center"><p>No videos found matching your search.</p></div>';
+                return;
+            }
+
+            // If not clearing container, only append new videos
+            const startIndex = clearContainer ? 0 : videoContainer.querySelectorAll('.col-md-6').length;
+            const newVideos = videos.slice(startIndex);
+
+            newVideos.forEach(item => {
+                const videoCard = createVideoCard(item);
+                if (videoCard) {
+                    videoContainer.appendChild(videoCard);
+                }
+            });
+
+            // Add loading indicator at the bottom
+            const existingIndicator = document.getElementById('loading-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.id = 'loading-indicator';
+            loadingIndicator.className = 'col-12 text-center mb-4 d-none';
+            loadingIndicator.innerHTML = `
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading more videos...</span>
+                </div>
+            `;
+            videoContainer.appendChild(loadingIndicator);
+        }
+
+        // Scroll handler
+        function handleScroll() {
+            if (isLoading || !nextPageToken) return;
+
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (!loadingIndicator) return;
+
+            const rect = loadingIndicator.getBoundingClientRect();
+            const isVisible = rect.top <= window.innerHeight;
+
+            if (isVisible) {
+                loadingIndicator.classList.remove('d-none');
+                loadYouTubeData(nextPageToken);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadYouTubeData();
+
+            const searchInput = document.getElementById('video-search');
+            const clearButton = document.getElementById('search-clear');
+
+            searchInput.addEventListener('input', (e) => {
+                filterVideos(e.target.value);
+            });
+
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                displayVideos(allVideos);
+            });
+
+            // Add scroll event listener
+            window.addEventListener('scroll', handleScroll);
+        });
+
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-NZ', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Filter videos based on search query
+        function filterVideos(searchQuery) {
+            if (!searchQuery || searchQuery.trim() === '') {
+                displayVideos(allVideos);
+                return;
+            }
+
+            const query = searchQuery.toLowerCase().trim();
+            const filtered = allVideos.filter(video => {
+                const title = video.snippet.title.toLowerCase();
+                const description = video.snippet.description.toLowerCase();
+                return title.includes(query) || description.includes(query);
+            });
+
+            displayVideos(filtered);
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Helper function to create video cards
+        function createVideoCard(item) {
+            const div = document.createElement('div');
+            div.className = 'col-md-6 col-lg-4 mb-4';
+            
+            // Validate video ID
+            const videoId = item.id?.videoId;
+            if (!videoId) {
+                console.error('Invalid video ID for item:', item);
+                return null;
+            }
+            
+            // Validate videoId format (should be 11 characters, alphanumeric, hyphens, underscores)
+            if (!/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+                console.error('Invalid video ID format:', videoId);
+                return null;
+            }
+            
+            // Escape HTML to prevent XSS and embed issues
+            const title = escapeHtml(item.snippet.title || 'YouTube video');
+            const description = escapeHtml(item.snippet.description || '');
+            const date = formatDate(item.snippet.publishedAt);
+
+            // Log video ID for debugging
+            console.log('Creating embed for video ID:', videoId, 'Title:', title);
+            
+            div.innerHTML = `
+                <div class="card h-100">
+                    <div class="youtube-player" data-id="${videoId}" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; cursor: pointer;">
+                        <img
+                            src="https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg"
+                            alt="${title}"
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; background: #000;"
+                            loading="lazy"
+                            onerror="this.src='https://i.ytimg.com/vi/${videoId}/hqdefault.jpg'">
+                        <div class="play-button" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 48px; background-color: rgba(33, 33, 33, 0.9); border-radius: 14px; transition: background-color 0.2s;">
+                            <svg height="100%" version="1.1" viewBox="0 0 68 48" width="100%">
+                                <path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="#f00"></path>
+                                <path d="M 45,24 27,14 27,34" fill="#fff"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">${title}</h5>
+                        <p class="text-muted mb-2">
+                            <small>
+                                <i class="bi bi-calendar"></i>
+                                ${date}
+                            </small>
+                        </p>
+                        <p class="card-text">${description}</p>
+                        <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary mt-2">
+                            <i class="bi bi-youtube"></i> Watch on YouTube
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            // Add click handler to load iframe on demand
+            const player = div.querySelector('.youtube-player');
+            player.addEventListener('click', function() {
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('src', `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`);
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.setAttribute('title', title);
+                iframe.style.position = 'absolute';
+                iframe.style.top = '0';
+                iframe.style.left = '0';
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = '0';
+
+                // Replace the thumbnail with the iframe
+                player.innerHTML = '';
+                player.appendChild(iframe);
+                player.style.cursor = 'default';
+            });
+
+            return div;
+        }
+    </script>
+</body>
+</html> 

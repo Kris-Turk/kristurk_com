@@ -1,0 +1,24 @@
+{
+    "videos": [
+        {
+            "id": "Gy-2Zs3Oqws",
+            "title": "Azure Bicep - Deploying Resources to Multiple Subscriptions",
+            "description": "Learn how to deploy Azure resources across multiple subscriptions using Bicep"
+        },
+        {
+            "id": "2KoP8HvJGgM",
+            "title": "Azure Bicep - Deploying Resources to Different Resource Groups",
+            "description": "How to deploy resources to different resource groups using Bicep"
+        },
+        {
+            "id": "jWHnP9JvLWE",
+            "title": "Azure Bicep - Using Modules",
+            "description": "Learn about using modules in Azure Bicep"
+        },
+        {
+            "id": "77AfsFzE9hk",
+            "title": "Azure Bicep - Getting Started",
+            "description": "Getting started with Azure Bicep"
+        }
+    ]
+} 
