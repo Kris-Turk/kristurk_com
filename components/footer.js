@@ -26,7 +26,7 @@ function loadFooter() {
                 
                 <!-- Copyright -->
                 <div class="text-center">
-                    <p>&copy; 2024 Kris Turk. All rights reserved.</p>
+                    <p>&copy; 2026 Kris Turk. All rights reserved.</p>
                 </div>
             </div>
         </footer>

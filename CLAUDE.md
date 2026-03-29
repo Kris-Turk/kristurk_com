@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Personal website for Kris Turk (kristurk.com) - a static website hosted on Azure Static Web Apps with serverless Azure Functions for API endpoints. The site showcases cloud architecture expertise, YouTube content, blog posts, and professional information.
+Personal website for Kris Turk (kristurk.com) - a static website hosted on Azure Static Web Apps with serverless Azure Functions for API endpoints. The site positions Kris as an AI and cloud technology leader, showcasing content on AI adoption, Azure architecture, YouTube videos, blog posts, and professional information. kristurk.com is the personal brand site; hybrit.co.nz is the company service site.
 
 ## Architecture
 
