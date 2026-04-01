@@ -6,3 +6,8 @@ js/config.js
 *.key
 venv/
 node_modules/
+# Added by ggshield
+.cache_ggshield
+
+# Added by ggshield
+.cache_ggshield

@@ -76,6 +76,7 @@ body {
 
 .hero-image {
     max-height: 80vh;
+    max-width: 100%;
     width: auto;
     object-fit: contain;
     border-radius: 10px;
